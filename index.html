@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Document HTML</title>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+<!-- 
+            <div class="row">
+                <p class="jumbotron">
+                    Login : <input type="text" v-model="user"> Vous êtes connecté en tant que {{user}}
+                </p>
+            </div> -->
+
+            <!-- Passer commande -->
+            <h2 class="produits-disponibles-title title">Qu'est-ce qui vous ferait plaisir aujourd'hui ?</h2>
+            <div class="divider"></div>
+            <div class="row">
+                <div class="col-4" v-for="(produit, index) in listProduits">
+                    <img v-bind:src="produit.img" alt="">
+                    <ul class="jumbotron">
+                        <li class="product-title"> {{ produit.nom }}</li>
+                        <li>Prix : {{ produit.prix }} €</li>
+                        <li>À emporter : {{ produit.prix_emporter }} €</li>
+                        <li>Description : {{ produit.description }}</li>
+                        <button class="btn btn-success btn-commander" @click="commander(produit)">Ajouter</button>
+                    </ul>
+                </div>
+            </div>
+
+
+            <!-- Afficher produits commandés -->
+            <h2 class="produits-commandes-title title" v-if="prixTotal">Votre sélection</h2>
+            <div class="divider" v-if="prixTotal"></div>
+            <div class="row">
+                <div class="col-4" 
+                v-for="commande in commandesFiltered"
+                v-if="commande.counter > 0">
+                    <img v-bind:src="commande.img" alt="">
+                    <ul class="jumbotron jumbotron-commandes">
+                        <li class="product-title"> {{ commande.nom}}</li>
+                        <li>Prix : {{ commande.prix}} €</li>
+                        <li>À emporter : {{ commande.prix_emporter}} €</li>
+                        <li>Description : {{ commande.description}}</li>
+                        <li>Quantité : {{ commande.counter}}</li>
+                        <button class="btn btn-danger btn-supprimer" @click="supprimer(commande, index)">-</button>
+                    </ul>
+                </div>
+            </div>
+
+
+            <!-- Afficher total -->
+            <div class="total" v-if="prixTotal && prixTotalEmporter">
+                <div class="valeur-totale">
+                    <div class="jumbotron jumbotron-total" :class="{'cher': prixTotal >= 40}">
+                        <span class="total-title" v-if="prixTotal < 20">Restons raisonnable</span>
+                        <span class="total-title" v-else-if="prixTotal >= 20 && prixTotal < 40">Faites-vous plaisir</span>
+                        <span class="total-title" v-else>Fais péter l'chéquier bébé $_$</span>
+                        <div class="total-text">
+                        Livré : {{ prixTotal }} € <br>
+                        À emporter : {{ prixTotalEmporter }} €</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+<!-- ======VUE.JS====== -->
+    <script>
+        var vm = new Vue({
+            el: "#app",
+            data: {
+                user: "Thuan",
+                prixTotal: 0,
+                prixTotalEmporter: 0,
+                listProduits: [
+                    {
+                        nom:'Pizza de Luigi',
+                        prix: 10,
+                        prix_emporter: 9,
+                        description: 'Lorem ipsum dolor sit, amet consectetur.',
+                        img: './img/pizza.jpg',
+                        counter: 0,
+                    },
+                    {
+                        nom:'Hamburger de Hambourg',
+                        prix: 8,
+                        prix_emporter: 7,
+                        description: 'Lorem ipsum dolor sit, amet consectetur.',
+                        img: './img/hamburger.jpg',
+                        counter: 0
+                    },
+                    {
+                        nom:'Tacos mais pas O\'Tacos',
+                        prix: 12,
+                        prix_emporter: 10,
+                        description: 'Lorem ipsum dolor sit, amet consectetur.',
+                        img: './img/tacos.jpg',
+                        counter: 0
+                    }
+                ],
+                commandes: [],
+                commandesFiltered: []
+            },
+
+            methods: {
+                commander(produit) {
+                        // Incrémenter compteur
+                        produit.counter++;
+                        console.log(produit.counter);
+                        
+                        //Ajouter élément au tableau commandes
+                        this.commandes.push(produit);
+
+                        // Filter mon tableau et le stocker dans un nouveau tableau
+                        this.commandesFiltered = this.commandes.filter((item, index) => this.commandes.indexOf(item) === index);
+                        console.log(this.commandesFiltered)
+
+                        // Calculer prix total
+                        this.prixTotal = this.prixTotal + +produit.prix;
+
+                        // Calcul prix total emporté
+                        this.prixTotalEmporter = this.prixTotalEmporter + +produit.prix_emporter; 
+                },
+
+
+                supprimer(commande, id) {
+                        // Suppression des prix totaux
+                        this.prixTotal = this.prixTotal - +commande.prix;
+                        this.prixTotalEmporter = this.prixTotalEmporter - +commande.prix_emporter;
+                        commande.counter = commande.counter - 1;
+
+                        // Suppression d'un élément à partir de son id
+                        // this.commandesFiltered.splice(id, 1); // Méthode 1
+                        this.$delete(this.commandesFiltered, id) // Methode 2
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+
+<!-- TODO -->
+    <!-- ===== -->
+    <!-- Ajouter bouton réinitialiser le caddie -->
+    <!-- == Design== -->
+    <!-- Ajouter croix en haute à droite du produit -->
+    <!-- Hover sur les boutons -->
+    <!-- Rendre responsive -->
